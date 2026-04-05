@@ -1,3 +1,86 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lab Page</title></head><body><h1>Hello from lab.simplyai.work</h1></body></html>
-<!-- redeploy -->
-<!-- push 2026-03-30T13:44:50 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Full‑Stack Developer Skill – Guide</title>
+  <style>
+    body {font-family:Arial,Helvetica,sans-serif; margin:2rem; line-height:1.6; background:#f9f9f9; color:#333;}
+    h1,h2,h3 {color:#2c3e50;}
+    table {border-collapse:collapse; width:100%; margin:1rem 0;}
+    th,td {border:1px solid #ddd; padding:0.5rem; text-align:left;}
+    th {background:#eee;}
+    pre {background:#eee; padding:0.5rem; overflow:auto;}
+    .code {font-family:monospace; background:#e8e8e8; padding:2px 4px; border-radius:3px;}
+  </style>
+</head>
+<body>
+  <h1>Full‑Stack Developer Skill – Quick Guide</h1>
+  <p>This page replaces the previous “Hello World” page on <code>lab.simplyai.work</code>. It shows how to use the <code>@nanobot fullstack_dev</code> skill to create, test, deploy, and PR new pages.</p>
+
+  <h2>Command‑line cheat‑sheet</h2>
+  <pre>
+@nanobot fullstack_dev create project mykb static
+@nanobot edit_file path=/Users/kevinhyt/Documents/Nanobot/workspace/projects/mykb/index.html old_text="&lt;h1&gt;Welcome&lt;/h1&gt;" new_text="&lt;h1&gt;My Knowledge Base&lt;/h1&gt;"
+@nanobot fullstack_dev run tests mykb
+@nanobot fullstack_dev deploy mykb kb-ui
+@nanobot fullstack_dev open pr mykb kb-ui --merge
+@nanobot fullstack_dev demo mykb
+  </pre>
+
+  <h2>Option flags</h2>
+  <table>
+    <tr><th>Flag</th><th>Command</th><th>Description</th></tr>
+    <tr><td><code>--merge</code></td><td><code>@nanobot fullstack_dev open pr mydemo kb-ui --merge</code></td><td>After creating the PR, the bot will attempt to merge it automatically (requires write permission).</td></tr>
+    <tr><td><code>--no‑tunnel</code></td><td><code>@nanobot fullstack_dev demo mydemo --no-tunnel</code></td><td>Runs the local server only, without exposing a public URL.</td></tr>
+    <tr><td><code>--verbose</code></td><td>Append to any command</td><td>Shows raw <code>git</code>/<code>npm</code> output – helpful for debugging.</td></tr>
+  </table>
+
+  <h2>Step‑by‑step example workflow (create → test → deploy → PR)</h2>
+  <ol>
+    <li><strong>Create a static page</strong><br>
+      <pre>@nanobot fullstack_dev create project mykb static</pre>
+      <em>Bot reply:</em> ✅ Created static project at <code>/Users/kevinhyt/Documents/Nanobot/workspace/projects/mykb</code>
+    </li>
+    <li><strong>Edit the page</strong> (you can edit manually or ask Nanobot). Example:<br>
+      <pre>@nanobot edit_file path=/Users/kevinhyt/Documents/Nanobot/workspace/projects/mykb/index.html old_text="&lt;h1&gt;Welcome&lt;/h1&gt;" new_text="&lt;h1&gt;My Knowledge Base&lt;/h1&gt;"</pre>
+    </li>
+    <li><strong>Run any tests</strong> (static sites have none, but you can still run the command to confirm the script works):<br>
+      <pre>@nanobot fullstack_dev run tests mykb</pre>
+      <em>Bot reply:</em> ⚠️ No recognizable test framework found.
+    </li>
+    <li><strong>Deploy to a preview branch</strong> (`kb-ui` is a good generic name):<br>
+      <pre>@nanobot fullstack_dev deploy mykb kb-ui</pre>
+      <em>Bot reply (after a few seconds):</em> 🚀 Preview URL: <code>https://kb-ui--lab.pages.dev/</code>
+    </li>
+    <li><strong>Open a PR</strong> (so the change can be merged into <code>main</code>):<br>
+      <pre>@nanobot fullstack_dev open pr mykb kb-ui</pre>
+      <em>Bot reply:</em> ✅ PR created: <a href="https://github.com/aryuu-allocfun/lab/pull/42">https://github.com/aryuu-allocfun/lab/pull/42</a>
+      <br>If you want it merged automatically (and you have write rights):<br>
+      <pre>@nanobot fullstack_dev open pr mykb kb-ui --merge</pre>
+    </li>
+    <li><strong>(Optional) Run a live demo</strong> – useful if you added a Dockerfile or a Node dev server:<br>
+      <pre>@nanobot fullstack_dev demo mykb</pre>
+      <em>Bot reply:</em> 🌐 Demo URL: <code>https://a1b2c3d4.trycloudflare.com</code>
+    </li>
+  </ol>
+
+  <h2>How to edit files without leaving the chat</h2>
+  <p>Nanobot already has a generic <code>edit_file</code> tool. Syntax:</p>
+  <pre>@nanobot edit_file path=&lt;full‑path&gt; old_text="&lt;exact‑old‑string&gt;" new_text="&lt;new‑string&gt;"</pre>
+  <ul>
+    <li>Exact match required – make sure the <code>old_text</code> appears verbatim in the file.</li>
+    <li>For larger edits, surround the block with a unique comment marker (e.g., <code><!-- START --></code> … <code><!-- END --></code>) and replace that block.</li>
+  </ul>
+
+  <h2>Common troubleshooting tips</h2>
+  <table>
+    <tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr>
+    <tr><td>“Could not resolve host …” when checking a preview URL</td><td>The branch hasn’t been pushed yet, or the Cloudflare preview build is still in progress.</td><td>Wait a minute, then re‑run <code>@nanobot fullstack_dev deploy …</code> or simply re‑open the URL.</td></tr>
+    <tr><td>“Permission denied (publickey)” on git push</td><td>PAT file missing or unreadable, or git is still trying to use SSH.</td><td>Ensure <code>gh_token.txt</code> exists, contains the token, and the <code>deploy.sh</code> script uses the <code>https://$PAT@github.com/... </code> URL (it does by default).</td></tr>
+    <tr><td>`gh` commands fail</td><td>`gh` not logged in.</td><td>Run once from the terminal: <code>gh auth login --with-token &lt; ~/Documents/Nanobot/workspace/secrets/gh_token.txt</code>. After that the skill can call <code>gh</code> without interactive login.</td></tr>
+    <tr><td>`cloudflared` not found when running demo</td><td>CLI not installed or not in $PATH.</td><td>Install with <code>brew install cloudflared</code> and ensure <code>/usr/local/bin</code> (or the Homebrew bin) is on the PATH.</td></tr>
+  </table>
+
+  <p>That’s it! Use the cheat‑sheet above to spin up new pages, test them, preview them instantly on Cloudflare Pages, and ship them via PRs—all without leaving Telegram. 🚀</p>
+</body>
+</html>
